@@ -25,7 +25,7 @@ function Login() {
             login(assignedRole, mockData);
             
             alert(`Login successful as ${assignedRole}!`);
-            navigate(assignedRole === 'Owner' ? '/owner-dashboard' : '/bachelor-dashboard');
+            navigate(assignedRole === 'Owner' ? '/owner-dashboard' : '/find-room');
             setLoading(false);
         }, 1000);
     }
