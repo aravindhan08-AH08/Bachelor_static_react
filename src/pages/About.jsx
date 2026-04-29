@@ -14,18 +14,18 @@ function About() {
                         <p className='text-[#666] text-[1.1em] mt-2'>Empowering independence through smart housing.</p>
                     </div>
 
-                    <div className='grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-[25px] mb-[50px]'>
-                        <div className='bg-white p-[30px] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-center transition-transform duration-300 hover:-translate-y-1.5'>
+                    <div className='flex flex-wrap justify-center gap-[25px] mb-[50px]'>
+                        <div className='bg-white p-[30px] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-center transition-transform duration-300 hover:-translate-y-1.5 flex-1 min-w-[280px] max-w-[350px]'>
                             <i className='fas fa-history text-[2.5em] text-[#4caf50] mb-[15px] block'></i>
                             <h3 className='text-[1.25em] text-[#045aaf] mb-3 font-bold'>My Story</h3>
                             <p className='text-[#666] leading-relaxed'>Bachelor Life was inspired by the real struggles single individuals face when finding a home. Living as a bachelor is like managing your own company-it teaches you responsibility, discipline, and how to stand on your own feet. I built this ti bridge that gap.</p>
                         </div>
-                        <div className="bg-white p-[30px] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-center transition-transform duration-300 hover:-translate-y-1.5">
+                        <div className="bg-white p-[30px] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-center transition-transform duration-300 hover:-translate-y-1.5 flex-1 min-w-[280px] max-w-[350px]">
                             <i className="fas fa-eye text-[2.5em] text-[#4caf50] mb-[15px] block"></i>
                             <h3 className='text-[1.25em] text-[#045aaf] mb-3 font-bold'>My Vision</h3>
                             <p className='text-[#666] leading-relaxed'>I believe every conversation with those ahead of us is a lesson. My vision is to create a community where bachelors can grow into stronger versions of themselves while having easy access to safe, verified, and transparent housing.</p>
                         </div>
-                        <div className="bg-white p-[30px] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-center transition-transform duration-300 hover:-translate-y-1.5">
+                        <div className="bg-white p-[30px] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-center transition-transform duration-300 hover:-translate-y-1.5 flex-1 min-w-[280px] max-w-[350px]">
                             <i className="fas fa-gem text-[2.5em] text-[#4caf50] mb-[15px] block"></i>
                             <h3 className='text-[1.25em] text-[#045aaf] mb-3 font-bold'>My Values</h3>
                             <p className='text-[#666] leading-relaxed'>Responsibility, Growth, and Truth. Bachelor Life isn't just a room-finding tool; it's a platform built on the trust between owners and young professionals starting their independent journey.</p>
