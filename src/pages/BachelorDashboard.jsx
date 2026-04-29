@@ -8,13 +8,14 @@ function BachelorDashboard() {
     const { isLoggedIn, userRole, userData } = useAuth();
     const navigate = useNavigate();
     
-    // Static data for Bachelor Dashboard
+    // Static data matching the screenshot
     const [bookings, setBookings] = useState([
-        { id: 1, room_title: "Modern Single Room in T-Nagar", room_location: "T-Nagar, Chennai", status: "Approved" },
-        { id: 2, room_title: "Luxury 1BHK near OMR", room_location: "Thoraipakkam, OMR", status: "Requested" },
-        { id: 3, room_title: "Budget Shared Room for Students", room_location: "Guindy, Chennai", status: "Rejected" }
+        { id: 1, room_title: "Bachelor Friendly 1BHK Room Available", room_location: "Kanthanchavadi, Chennai.", status: "Approved" },
+        { id: 2, room_title: "Good House", room_location: "Chennai", status: "Requested" },
+        { id: 3, room_title: "2BHK Fully Furnished Room for Bachelor – Near IT Park", room_location: "Kanthanchavadi, Chennai.", status: "Requested" },
+        { id: 4, room_title: "Prasanna Vilasam", room_location: "Kanthanchavadi, Chennai.", status: "Rejected" },
+        { id: 5, room_title: "Prasanna Vilasam", room_location: "Kanthanchavadi, Chennai.", status: "Approved" }
     ]);
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!isLoggedIn) { navigate('/login'); return; }
@@ -28,102 +29,119 @@ function BachelorDashboard() {
     };
 
     const total = bookings.length;
-    const pending = bookings.filter(b => b.status === 'Requested' || b.status === 'Request').length;
-    const confirmed = bookings.filter(b => b.status === 'Approved').length;
+    const requested = bookings.filter(b => b.status === 'Requested').length;
+    const approved = bookings.filter(b => b.status === 'Approved').length;
     const rejected = bookings.filter(b => b.status === 'Rejected').length;
 
     const stats = [
-        { label: 'Total requested', value: total, color: 'text-blue-600' },
-        { label: 'Requested', value: pending, color: 'text-yellow-600' },
-        { label: 'Approved', value: confirmed, color: 'text-green-700' },
-        { label: 'Rejected', value: rejected, color: 'text-red-700' },
+        { label: 'Total Requests', value: total, icon: 'fa-list-ul', iconBg: 'bg-blue-100', iconColor: 'text-blue-500' },
+        { label: 'Requested', value: requested, icon: 'fa-clock', iconBg: 'bg-yellow-100', iconColor: 'text-yellow-500' },
+        { label: 'Approved', value: approved, icon: 'fa-check-circle', iconBg: 'bg-green-100', iconColor: 'text-green-500' },
+        { label: 'Rejected', value: rejected, icon: 'fa-times-circle', iconBg: 'bg-red-100', iconColor: 'text-red-500' },
     ];
 
     const statusBadge = (status) => {
         const styles = {
-            'Requested': 'bg-yellow-100 text-yellow-800',
-            'Request': 'bg-yellow-100 text-yellow-800',
-            'Approved': 'bg-green-100 text-green-800',
-            'Rejected': 'bg-red-100 text-red-800',
+            'Requested': 'bg-yellow-100 text-yellow-700',
+            'Approved': 'bg-green-100 text-green-700',
+            'Rejected': 'bg-red-100 text-red-700',
         };
-        return <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || 'bg-gray-100 text-gray-800'}`}>{status}</span>;
+        return (
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${styles[status] || 'bg-gray-100 text-gray-700'}`}>
+                {status}
+            </span>
+        );
     };
 
     return (
-        <>
+        <div className="flex flex-col min-h-screen bg-gray-50">
             <Navbar />
-            <main className='min-h-screen bg-gray-50 px-4 py-8 max-w-5xl mx-auto'>
-                <div className="mb-6">
-                    <h1 className="text-2xl font-semibold text-gray-900">
-                        Welcome, <span className="text-blue-600">{userData?.name || 'Bachelor'}</span>!
+            
+            <main className="flex-grow max-w-[1200px] mx-auto w-full px-6 py-10">
+                <header className="mb-10">
+                    <h1 className="text-4xl font-bold text-[#045aaf] mb-2">
+                        Welcome, {userData?.name || 'Example'}!
                     </h1>
-                    <p className="text-gray-500 text-sm mt-1">Track the status of your room requests here.</p>
-                </div>
+                    <p className="text-gray-500 text-lg font-medium">Track the status of your room requests here.</p>
+                </header>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                    {stats.map((s) => (
-                        <div key={s.label} className="bg-white border border-gray-100 rounded-lg p-4">
-                            <p className="text-xs text-gray-500 mb-1">{s.label}</p>
-                            <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    {stats.map((s, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex items-center gap-5 transition-transform hover:scale-[1.02]">
+                            <div className={`${s.iconBg} ${s.iconColor} w-14 h-14 rounded-full flex items-center justify-center text-2xl`}>
+                                <i className={`fas ${s.icon}`}></i>
+                            </div>
+                            <div>
+                                <h3 className="text-3xl font-black text-gray-800 leading-none mb-1">{s.value}</h3>
+                                <p className="text-sm text-gray-500 font-semibold">{s.label}</p>
+                            </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Table */}
-                <div className="bg-white border border-gray-100 rounded-lg overflow-hidden">
-                    <div className="px-5 py-3 border-b border-gray-100">
-                        <h2 className="text-base font-medium text-gray-800">Request History</h2>
-                    </div>
+                <div className="mb-8">
+                    <h2 className="text-2xl font-bold text-gray-800">Request History</h2>
+                </div>
+
+                {/* Table Section */}
+                <div className="bg-white rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.05)] overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="bg-gray-50 text-gray-500 font-medium">
+                        <table className="w-full text-left">
+                            <thead className="bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <th className="text-left px-5 py-3">Room Title</th>
-                                    <th className="text-left px-5 py-3">Location</th>
-                                    <th className="text-left px-5 py-3">Status</th>
-                                    <th className="text-left px-5 py-3">Action</th>
+                                    <th className="px-8 py-5 text-sm font-bold text-gray-700 uppercase tracking-wider">Room Title</th>
+                                    <th className="px-8 py-5 text-sm font-bold text-gray-700 uppercase tracking-wider">Location</th>
+                                    <th className="px-8 py-5 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Status</th>
+                                    <th className="px-8 py-5 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {loading && (
-                                    <tr><td colSpan="4" className="text-center py-6 text-gray-400">Loading your requests...</td></tr>
-                                )}
-                                {!loading && bookings.length === 0 && (
-                                    <tr>
-                                        <td colSpan="4" className="text-center py-6 text-gray-400">
-                                            No booking requests found.{' '}
-                                            <a href="/find-rooms" className="text-blue-500 hover:underline">Find a room!</a>
-                                        </td>
-                                    </tr>
-                                )}
+                            <tbody className="divide-y divide-gray-50">
                                 {bookings.map((b) => (
-                                    <tr key={b.id} className="border-t border-gray-50">
-                                        <td className="px-5 py-3 text-gray-800">{b.room_title || b.room_id}</td>
-                                        <td className="px-5 py-3 text-gray-500">{b.room_location || '—'}</td>
-                                        <td className="px-5 py-3">{statusBadge(b.status)}</td>
-                                        <td className="px-5 py-3">
-                                            {b.status === 'Requested' || b.status === 'Request' ? (
-                                                <button
+                                    <tr key={b.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-8 py-6">
+                                            <p className="text-[15px] font-bold text-gray-800">{b.room_title}</p>
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <p className="text-[14px] text-gray-600 font-medium">{b.room_location}</p>
+                                        </td>
+                                        <td className="px-8 py-6 text-center">
+                                            {statusBadge(b.status)}
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <div className="flex justify-center gap-3">
+                                                <button 
+                                                    onClick={() => navigate(`/room/${b.id}`)}
+                                                    className="bg-[#007bff] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#045aaf] transition-all"
+                                                >
+                                                    View Room
+                                                </button>
+                                                <button 
                                                     onClick={() => handleCancelBooking(b.id)}
-                                                    className="bg-red-50 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-100 transition-colors"
+                                                    className="bg-[#dc3545] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#c82333] transition-all"
                                                 >
                                                     Cancel
                                                 </button>
-                                            ) : (
-                                                <span className="text-gray-300 text-xs">—</span>
-                                            )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
+                                {bookings.length === 0 && (
+                                    <tr>
+                                        <td colSpan="4" className="px-8 py-10 text-center text-gray-500 font-medium italic">
+                                            No requests found. <button onClick={() => navigate('/find-rooms')} className="text-[#007bff] hover:underline">Find a room now!</button>
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </main>
+            
             <Footer />
-        </>
-    )
+        </div>
+    );
 }
 
 export default BachelorDashboard;
