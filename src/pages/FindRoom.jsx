@@ -33,7 +33,6 @@ function FindRoom() {
     const fetchRooms = async () => {
       try {
         setLoading(true);
-        // Using 127.0.0.1 can sometimes resolve localhost resolution issues in some environments
         const res = await fetch("http://127.0.0.1:8000/rooms/");
         
         if (!res.ok) {
