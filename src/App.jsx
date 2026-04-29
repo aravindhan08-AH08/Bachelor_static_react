@@ -10,7 +10,7 @@ import Signup from './pages/Signup';
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename='/Bachelor_static_react'>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path='/' element={<Home/>} />
           <Route path='/about' element={<About/>} />
