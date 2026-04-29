@@ -7,6 +7,7 @@ import Contact from './pages/Contact'
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import FindRoom from './pages/FindRoom';
+import BachelorDashboard from './pages/BachelorDashboard';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path='/signup' element={<Signup />} />
           <Route path='/find-room' element={<FindRoom />} />
           <Route path='/find-rooms' element={<FindRoom />} />
+          <Route path='/bachelor-dashboard' element={<BachelorDashboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
