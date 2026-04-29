@@ -32,13 +32,21 @@ function FindRoom() {
     
     const fetchRooms = async () => {
       try {
-        const res = await fetch("http://localhost:8000/rooms/");
-        if (!res.ok) throw new Error("Failed to fetch");
+        setLoading(true);
+        // Using 127.0.0.1 can sometimes resolve localhost resolution issues in some environments
+        const res = await fetch("http://127.0.0.1:8000/rooms/");
+        
+        if (!res.ok) {
+          throw new Error(`Server responded with ${res.status}`);
+        }
+        
         const data = await res.json();
         setAllRooms(data);
         setFiltered(data);
-      } catch {
-        setError('Failed to load rooms.');
+        setError(''); 
+      } catch (err) {
+        console.error("API Fetch Error:", err);
+        setError('Failed to load rooms. Please check if your backend server is running on port 8000.');
       } finally {
         setLoading(false);
       }
