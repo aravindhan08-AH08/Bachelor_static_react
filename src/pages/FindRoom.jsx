@@ -6,9 +6,9 @@ import { useAuth } from '../context/AuthContext';
 
 const getImageUrl = (url) => url || 'https://placehold.co/600x400?text=No+Image';
 const parseImages = (imgStr) => {
-    if (!imgStr) return [];
-    if (Array.isArray(imgStr)) return imgStr;
-    try { return JSON.parse(imgStr); } catch { return [imgStr]; }
+  if (!imgStr) return [];
+  if (Array.isArray(imgStr)) return imgStr;
+  try { return JSON.parse(imgStr); } catch { return [imgStr]; }
 };
 
 function FindRoom() {
@@ -29,108 +29,105 @@ function FindRoom() {
   useEffect(() => {
     if (!isLoggedIn) { alert('Please Login to browse rooms!'); navigate('/login'); return; }
     if (userRole === 'Owner') { alert('Owner cannot browse rooms. Redirecting to your Dashboard.'); navigate('/owner-dashboard'); return; }
+    
+    const fetchRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/rooms/");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setAllRooms(data);
+        setFiltered(data);
+      } catch {
+        setError('Failed to load rooms.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchRooms();
   }, [isLoggedIn, userRole, navigate]);
 
-  const fetchRooms = async () => {
-    try {
-      const storedRooms = JSON.parse(localStorage.getItem('rooms') || '[]');
-      // Adding some mock rooms if empty for demonstration
-      const roomsToUse = storedRooms.length > 0 ? storedRooms : [
-          { id: 1, title: 'Luxury Single Room', room_type: 'Single Room', rent: 15000, deposit: 50000, location: 'Chennai', max_persons: 1, gender: 'Any', wifi: true, ac: true },
-          { id: 2, title: 'Cozy Shared Room', room_type: 'Shared Room', rent: 8000, deposit: 20000, location: 'Bangalore', max_persons: 2, gender: 'Male', wifi: true, ac: false },
-          { id: 3, title: 'Spacious 2 BHK', room_type: '2 BHK', rent: 25000, deposit: 100000, location: 'Chennai', max_persons: 4, gender: 'Any', wifi: true, ac: true, parking: true }
-      ];
-      setAllRooms(roomsToUse);
-      setFiltered(roomsToUse);
-    } catch {
-      setError('Failed to load rooms.');
-    } finally { 
-      setLoading(false); 
-    }
-  };
-
   const applyFilters = () => {
-    const result = allRooms.filter(room => {
-      const matchLoc = !locationVal || room.location.toLowerCase().includes(locationVal.toLowerCase()) || room.title.toLowerCase().includes(locationVal.toLowerCase());
-      const matchType = !typeVal || room.room_type.toLowerCase() === typeVal.toLowerCase();
-      const matchBudget = room.rent <= budget;
-      const matchAmenities =
-        (!amenities.wifi || room.wifi) &&
-        (!amenities.ac || room.ac) &&
-        (!amenities.parking || room.parking) &&
-        (!amenities.gym || room.gym) &&
-        (!amenities.kitchen || room.kitchen) &&
-        (!amenities.security || room.security);
-      return matchLoc && matchType && matchBudget && matchAmenities;
-    });
-    setFiltered(result);
-  };
+  const result = allRooms.filter(room => {
+    const matchLoc = !locationVal || room.location.toLowerCase().includes(locationVal.toLowerCase()) || room.title.toLowerCase().includes(locationVal.toLowerCase());
+    const matchType = !typeVal || room.room_type.toLowerCase() === typeVal.toLowerCase();
+    const matchBudget = room.rent <= budget;
+    const matchAmenities =
+      (!amenities.wifi || room.wifi) &&
+      (!amenities.ac || room.ac) &&
+      (!amenities.parking || room.parking) &&
+      (!amenities.gym || room.gym) &&
+      (!amenities.kitchen || room.kitchen) &&
+      (!amenities.security || room.security);
+    return matchLoc && matchType && matchBudget && matchAmenities;
+  });
+  setFiltered(result);
+};
 
-  const toggleAmenity = (key) => setAmenities(prev => ({ ...prev, [key]: !prev[key] }));
+const toggleAmenity = (key) => setAmenities(prev => ({ ...prev, [key]: !prev[key] }));
 
-  return (
-    <div className="flex flex-col min-h-screen bg-[#f4f7fa]">
-      <Navbar />
-      <main className='py-[50px] text-center flex-grow'>
-        <div className='max-w-[1200px] mx-auto px-5'>
-          <section className='mb-[60px]'>
-            <h1 className='text-3xl md:text-[36px] font-bold text-[#1a1a1a] mb-1.5'>Discover Your Perfect Room</h1>
-            <div className='w-[150px] h-[3px] bg-[#5cb85c] mx-auto my-[15px]'></div>
-            <p className="text-[#666] text-lg">Browse through our curated collection of bachelor-friendly accommodations</p>
-          </section>
+return (
+  <div className="flex flex-col min-h-screen bg-[#f4f7fa]">
+    <Navbar />
+    <main className='py-[50px] text-center flex-grow'>
+      <div className='max-w-[1200px] mx-auto px-5'>
+        <section className='mb-[60px]'>
+          <h1 className='text-3xl md:text-[36px] font-bold text-[#1a1a1a] mb-1.5'>Discover Your Perfect Room</h1>
+          <div className='w-[150px] h-[3px] bg-[#5cb85c] mx-auto my-[15px]'></div>
+          <p className="text-[#666] text-lg">Browse through our curated collection of bachelor-friendly accommodations</p>
+        </section>
 
-          <section className='bg-white p-[30px] rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.08)] max-w-[1000px] mx-auto mb-[60px]'>
-            <div className='font-semibold text-[#333] text-[18px] text-left mb-5 flex items-center'>
-              <span className='block w-1.5 h-[25px] bg-[#5cb85c] rounded-[3px] mr-2.5'></span>
-              Available Rooms ({filtered.length})
-            </div>
-            
-            <div className='flex flex-col md:flex-row gap-[15px] items-stretch md:items-center flex-wrap'>
-              <div className='relative flex-1 min-w-full md:min-w-[200px] h-[50px] bg-[#f7f9fc] border border-[#ddd] rounded flex items-center px-2.5'>
-                <i className='fas fa-map-marker-alt text-[#aaa]'></i>
-                <input className="w-full h-full border-none outline-none bg-transparent text-[16px] pl-2.5" type="text" placeholder='Search Location' value={locationVal} onChange={e => setLocationVal(e.target.value)} />
-              </div>
-              <div className='relative flex-1 min-w-full md:min-w-[200px] h-[50px] bg-[#f7f9fc] border border-[#ddd] rounded flex items-center px-2.5 pr-[30px]'>
-                <select className="w-full h-full border-none outline-none bg-transparent text-[16px] pl-2.5 appearance-none" value={typeVal} onChange={e => setTypeVal(e.target.value)}>
-                  <option value="">All Room Type</option>
-                  <option value="single">Single Room</option>
-                  <option value="shared">Shared Room</option>
-                  <option value="1bhk">1 BHK</option>
-                  <option value="2bhk">2 BHK</option>
-                </select>
-                <i className='fas fa-chevron-down text-[#aaa] absolute right-2.5 pointer-events-none'></i>
-              </div>
-              <div className='flex-[1.5] flex flex-col min-w-full md:min-w-[250px]'>
-                <input className="w-full h-2 bg-gradient-to-r from-[#2e59a7] to-[#e0e0e0] rounded-[5px] cursor-pointer mb-1 accent-[#2e59a7]" type="range" min='0' max='100000' step='1000' value={budget} onChange={e => setBudget(Number(e.target.value))} />
-                <span className='text-center text-[#666] text-[14px] mt-1.5'>Max Budget: ₹{budget.toLocaleString('en-IN')}</span>
-              </div>
-              <button className='bg-[#5cb85c] text-white border-none py-2.5 px-[25px] text-[18px] font-semibold rounded h-[50px] shrink-0 hover:bg-[#4cae4c] transition-colors w-full md:w-auto' onClick={applyFilters}>Apply Filters</button>
-            </div>
-            
-            <div className='flex flex-wrap gap-[15px] mt-5 pt-[15px] border-t border-[#eee]'>
-              {Object.keys(amenities).map(key => (
-                <label key={key} className="flex items-center gap-1.5 text-[0.95rem] text-[#555] cursor-pointer">
-                  <input type="checkbox" className="accent-[#5cb85c] w-4 h-4 cursor-pointer" checked={amenities[key]} onChange={() => toggleAmenity(key)} />
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </label>
-              ))}
-            </div>
-          </section>
-
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-[30px] py-5 w-full text-left'>
-            {loading && <p className="text-center w-full col-span-full">Loading Rooms...</p>}
-            {error && <p className="text-center w-full text-red-500 col-span-full">{error}</p>}
-            {!loading && !error && filtered.length === 0 && (
-              <p className="text-center w-full col-span-full text-lg text-[#666]">No Rooms match your criteria.</p>
-            )}
-            {!loading && filtered.map(room => <RoomCard key={room.id} room={room} navigate={navigate} />)}
+        <section className='bg-white p-[30px] rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.08)] max-w-[1000px] mx-auto mb-[60px]'>
+          <div className='font-semibold text-[#333] text-[18px] text-left mb-5 flex items-center'>
+            <span className='block w-1.5 h-[25px] bg-[#5cb85c] rounded-[3px] mr-2.5'></span>
+            Available Rooms ({filtered.length})
           </div>
+
+          <div className='flex flex-col md:flex-row gap-[15px] items-stretch md:items-center flex-wrap'>
+            <div className='relative flex-1 min-w-full md:min-w-[200px] h-[50px] bg-[#f7f9fc] border border-[#ddd] rounded flex items-center px-2.5'>
+              <i className='fas fa-map-marker-alt text-[#aaa]'></i>
+              <input className="w-full h-full border-none outline-none bg-transparent text-[16px] pl-2.5" type="text" placeholder='Search Location' value={locationVal} onChange={e => setLocationVal(e.target.value)} />
+            </div>
+            <div className='relative flex-1 min-w-full md:min-w-[200px] h-[50px] bg-[#f7f9fc] border border-[#ddd] rounded flex items-center px-2.5 pr-[30px]'>
+              <select className="w-full h-full border-none outline-none bg-transparent text-[16px] pl-2.5 appearance-none" value={typeVal} onChange={e => setTypeVal(e.target.value)}>
+                <option value="">All Room Type</option>
+                <option value="single">Single Room</option>
+                <option value="shared">Shared Room</option>
+                <option value="1bhk">1 BHK</option>
+                <option value="2bhk">2 BHK</option>
+              </select>
+              <i className='fas fa-chevron-down text-[#aaa] absolute right-2.5 pointer-events-none'></i>
+            </div>
+            <div className='flex-[1.5] flex flex-col min-w-full md:min-w-[250px]'>
+              <input className="w-full h-2 bg-gradient-to-r from-[#2e59a7] to-[#e0e0e0] rounded-[5px] cursor-pointer mb-1 accent-[#2e59a7]" type="range" min='0' max='100000' step='1000' value={budget} onChange={e => setBudget(Number(e.target.value))} />
+              <span className='text-center text-[#666] text-[14px] mt-1.5'>Max Budget: ₹{budget.toLocaleString('en-IN')}</span>
+            </div>
+            <button className='bg-[#5cb85c] text-white border-none py-2.5 px-[25px] text-[18px] font-semibold rounded h-[50px] shrink-0 hover:bg-[#4cae4c] transition-colors w-full md:w-auto' onClick={applyFilters}>Apply Filters</button>
+          </div>
+
+          <div className='flex flex-wrap gap-[15px] mt-5 pt-[15px] border-t border-[#eee]'>
+            {Object.keys(amenities).map(key => (
+              <label key={key} className="flex items-center gap-1.5 text-[0.95rem] text-[#555] cursor-pointer">
+                <input type="checkbox" className="accent-[#5cb85c] w-4 h-4 cursor-pointer" checked={amenities[key]} onChange={() => toggleAmenity(key)} />
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </label>
+            ))}
+          </div>
+        </section>
+
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-[30px] py-5 w-full text-left'>
+          {loading && <p className="text-center w-full col-span-full">Loading Rooms...</p>}
+          {error && <p className="text-center w-full text-red-500 col-span-full">{error}</p>}
+          {!loading && !error && filtered.length === 0 && (
+            <p className="text-center w-full col-span-full text-lg text-[#666]">No Rooms match your criteria.</p>
+          )}
+          {!loading && filtered.map(room => <RoomCard key={room.id} room={room} navigate={navigate} />)}
         </div>
-      </main>
-      <Footer />
-    </div>
-  );
+      </div>
+    </main>
+    <Footer />
+  </div>
+);
 };
 
 const RoomCard = ({ room, navigate }) => {
@@ -143,7 +140,7 @@ const RoomCard = ({ room, navigate }) => {
         <img src={imgSrc} alt={room.title} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' loading='lazy'
           onError={e => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400?text=Image+Not+Found'; }} />
         <div className="absolute top-3 right-3 bg-[#4caf50] text-white text-xs font-bold px-2 py-1 rounded shadow">
-            ₹{room.rent}/mo
+          ₹{room.rent}/mo
         </div>
       </div>
       <div className='p-5 flex-grow flex flex-col gap-2.5'>
