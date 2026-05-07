@@ -7,7 +7,10 @@ import Contact from './pages/Contact'
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import FindRoom from './pages/FindRoom';
+import RoomDetails from './pages/RoomDetails';
+import PostRoom from './pages/PostRoom';
 import BachelorDashboard from './pages/BachelorDashboard';
+import OwnerDashboard from './pages/OwnerDashboard';
 
 function App() {
   return (
@@ -21,7 +24,10 @@ function App() {
           <Route path='/signup' element={<Signup />} />
           <Route path='/find-room' element={<FindRoom />} />
           <Route path='/find-rooms' element={<FindRoom />} />
+          <Route path='/room/:id' element={<RoomDetails />} />
+          <Route path='/post-room' element={<PostRoom />} />
           <Route path='/bachelor-dashboard' element={<BachelorDashboard />} />
+          <Route path='/owner-dashboard' element={<OwnerDashboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

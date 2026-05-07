@@ -3,11 +3,13 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { API_CONFIG } from '../utils/api';
 
 function Signup() {
     const [role, setRole] = useState('Bachelor');
     const [form, setForm] = useState({fullName: '', phone: '', email: '', gender:'', password: ''});
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -17,16 +19,45 @@ function Signup() {
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         
-        // Simulate static account creation (No API needed)
-        setTimeout(() => {
-            alert('Account Created Successfully! Please Login.');
-            navigate('/login');
+        try {
+            const endpoint = role === 'Owner' ? API_CONFIG.OWNER_SIGNUP : API_CONFIG.USER_SIGNUP;
+            const payload = {
+                phone: form.phone,
+                email: form.email,
+                gender: form.gender,
+                password: form.password
+            };
+            
+            if (role === 'Owner') {
+                payload.owner_name = form.fullName;
+            } else {
+                payload.name = form.fullName;
+            }
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Account Created Successfully! Please Login.');
+                navigate('/login');
+            } else {
+                alert(data.detail || 'Signup failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Signup Error:', error);
+            alert('Failed to connect to backend.');
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     };
 
   return (
@@ -70,7 +101,28 @@ function Signup() {
                 </div>
                 <div className='mb-[18px] text-left'>
                     <label className="block text-[0.9em] text-[#333] mb-1.5 font-semibold">Password</label>
-                    <input className="w-full p-3 border-[1.5px] border-[#ddd] rounded-lg text-[0.95em] outline-none transition-colors duration-300 focus:border-[#007bff]" type="password" name='password' placeholder='Create a Password' value={form.password} onChange={handleChange} required/>
+                    <div className="relative">
+                        <input 
+                            className="w-full p-3 border-[1.5px] border-[#ddd] rounded-lg text-[0.95em] outline-none transition-colors duration-300 focus:border-[#007bff] pr-10" 
+                            type={showPassword ? "text" : "password"} 
+                            name='password' 
+                            placeholder='Create a Password' 
+                            value={form.password} 
+                            onChange={handleChange} 
+                            required
+                        />
+                        <button 
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#007bff] transition-colors"
+                        >
+                            {showPassword ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            )}
+                        </button>
+                    </div>
                 </div>
                 <button type='submit' className='w-full p-[13px] bg-[#045aaf] text-white border-none rounded-lg text-[1em] font-bold mt-1.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed hover:not(:disabled):bg-[#007bff] hover:not(:disabled):-translate-y-0.5' disabled={loading}>{loading ? 'Creating...' : 'Create Account'}</button>
             </form>

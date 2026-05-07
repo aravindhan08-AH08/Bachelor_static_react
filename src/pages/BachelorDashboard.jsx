@@ -3,29 +3,49 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
+import { API_CONFIG } from '../utils/api';
 
 function BachelorDashboard() {
     const { isLoggedIn, userRole, userData } = useAuth();
     const navigate = useNavigate();
-    
-    // Static data matching the screenshot
-    const [bookings, setBookings] = useState([
-        { id: 1, room_title: "Bachelor Friendly 1BHK Room Available", room_location: "Kanthanchavadi, Chennai.", status: "Approved" },
-        { id: 2, room_title: "Good House", room_location: "Chennai", status: "Requested" },
-        { id: 3, room_title: "2BHK Fully Furnished Room for Bachelor – Near IT Park", room_location: "Kanthanchavadi, Chennai.", status: "Requested" },
-        { id: 4, room_title: "Prasanna Vilasam", room_location: "Kanthanchavadi, Chennai.", status: "Rejected" },
-        { id: 5, room_title: "Prasanna Vilasam", room_location: "Kanthanchavadi, Chennai.", status: "Approved" }
-    ]);
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!isLoggedIn) { navigate('/login'); return; }
         if (userRole !== 'Bachelor') { navigate('/owner-dashboard'); return; }
-    }, [isLoggedIn, userRole, navigate]);
+        
+        const fetchBookings = async () => {
+            try {
+                const res = await fetch(`${API_CONFIG.USER_DASHBOARD}?user_id=${userData.id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setBookings(data);
+                }
+            } catch (err) {
+                console.error("Fetch Bookings Error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const handleCancelBooking = (id) => {
+        fetchBookings();
+    }, [isLoggedIn, userRole, navigate, userData?.id]);
+
+    const handleCancelBooking = async (id) => {
         if (!window.confirm("Are you sure you want to cancel this request?")) return;
-        setBookings(prev => prev.filter(b => b.id !== id));
-        alert("Request cancelled successfully!");
+        try {
+            const res = await fetch(`${API_CONFIG.BOOKING}${id}?user_id=${userData.id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setBookings(prev => prev.filter(b => b.id !== id));
+                alert("Request cancelled successfully!");
+            } else {
+                const data = await res.json();
+                alert(data.detail || "Failed to cancel request.");
+            }
+        } catch (err) {
+            alert("Failed to cancel request.");
+        }
     };
 
     const total = bookings.length;
@@ -126,10 +146,17 @@ function BachelorDashboard() {
                                         </td>
                                     </tr>
                                 ))}
-                                {bookings.length === 0 && (
+                                {loading && (
+                                    <tr>
+                                        <td colSpan="4" className="px-8 py-10 text-center text-gray-500 font-medium">
+                                            Loading your requests...
+                                        </td>
+                                    </tr>
+                                )}
+                                {!loading && bookings.length === 0 && (
                                     <tr>
                                         <td colSpan="4" className="px-8 py-10 text-center text-gray-500 font-medium italic">
-                                            No requests found. <button onClick={() => navigate('/find-rooms')} className="text-[#007bff] hover:underline">Find a room now!</button>
+                                            No requests found. <button onClick={() => navigate('/find-room')} className="text-[#007bff] hover:underline">Find a room now!</button>
                                         </td>
                                     </tr>
                                 )}

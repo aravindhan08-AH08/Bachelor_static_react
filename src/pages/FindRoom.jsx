@@ -3,15 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
+import { API_CONFIG, getImageUrl, parseImages } from '../utils/api';
 
-const getImageUrl = (url) => url || 'https://placehold.co/600x400?text=No+Image';
-const parseImages = (imgStr) => {
-  if (!imgStr) return [];
-  if (Array.isArray(imgStr)) return imgStr;
-  try { return JSON.parse(imgStr); } catch { return [imgStr]; }
-};
-
-function FindRoom() {
+const FindRoom = () => {
   const { isLoggedIn, userRole } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -33,133 +27,157 @@ function FindRoom() {
     const fetchRooms = async () => {
       try {
         setLoading(true);
-        const res = await fetch("http://127.0.0.1:8000/rooms/");
-        
-        if (!res.ok) {
-          throw new Error(`Server responded with ${res.status}`);
-        }
-        
+        const res = await fetch(API_CONFIG.ROOMS);
+        if (!res.ok) throw new Error(`Server responded with ${res.status}`);
         const data = await res.json();
         setAllRooms(data);
         setFiltered(data);
         setError(''); 
       } catch (err) {
         console.error("API Fetch Error:", err);
-        setError('Failed to load rooms. Please check if your backend server is running on port 8000.');
+        setError('Failed to load rooms. Please check your connection.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchRooms();
   }, [isLoggedIn, userRole, navigate]);
 
   const applyFilters = () => {
-  const result = allRooms.filter(room => {
-    const matchLoc = !locationVal || room.location.toLowerCase().includes(locationVal.toLowerCase()) || room.title.toLowerCase().includes(locationVal.toLowerCase());
-    const matchType = !typeVal || room.room_type.toLowerCase() === typeVal.toLowerCase();
-    const matchBudget = room.rent <= budget;
-    const matchAmenities =
-      (!amenities.wifi || room.wifi) &&
-      (!amenities.ac || room.ac) &&
-      (!amenities.parking || room.parking) &&
-      (!amenities.gym || room.gym) &&
-      (!amenities.kitchen || room.kitchen) &&
-      (!amenities.security || room.security);
-    return matchLoc && matchType && matchBudget && matchAmenities;
-  });
-  setFiltered(result);
-};
+    const result = allRooms.filter(room => {
+      const matchLoc = !locationVal || room.location.toLowerCase().includes(locationVal.toLowerCase()) || room.title.toLowerCase().includes(locationVal.toLowerCase());
+      const matchType = !typeVal || room.room_type.toLowerCase() === typeVal.toLowerCase();
+      const matchBudget = room.rent <= budget;
+      const matchAmenities =
+        (!amenities.wifi || room.wifi) &&
+        (!amenities.ac || room.ac) &&
+        (!amenities.parking || room.parking) &&
+        (!amenities.gym || room.gym) &&
+        (!amenities.kitchen || room.kitchen) &&
+        (!amenities.security || room.security);
+      return matchLoc && matchType && matchBudget && matchAmenities;
+    });
+    setFiltered(result);
+  };
 
-const toggleAmenity = (key) => setAmenities(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleAmenity = (key) => setAmenities(prev => ({ ...prev, [key]: !prev[key] }));
 
-return (
-  <div className="flex flex-col min-h-screen bg-[#f4f7fa]">
-    <Navbar />
-    <main className='py-[50px] text-center flex-grow'>
-      <div className='max-w-[1200px] mx-auto px-5'>
-        <section className='mb-[60px]'>
-          <h1 className='text-3xl md:text-[36px] font-bold text-[#1a1a1a] mb-1.5'>Discover Your Perfect Room</h1>
-          <div className='w-[150px] h-[3px] bg-[#5cb85c] mx-auto my-[15px]'></div>
-          <p className="text-[#666] text-lg">Browse through our curated collection of bachelor-friendly accommodations</p>
-        </section>
-
-        <section className='bg-white p-[30px] rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.08)] max-w-[1000px] mx-auto mb-[60px]'>
-          <div className='font-semibold text-[#333] text-[18px] text-left mb-5 flex items-center'>
-            <span className='block w-1.5 h-[25px] bg-[#5cb85c] rounded-[3px] mr-2.5'></span>
-            Available Rooms ({filtered.length})
+  return (
+    <div className="flex flex-col min-h-screen bg-[#f4f7fa]">
+      <Navbar />
+      <main className="flex-grow py-12 px-4 animate-fadeIn">
+        <div className="max-w-[1200px] mx-auto">
+          
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-black text-gray-800 mb-4">Discover Your Perfect Room</h1>
+            <p className="text-gray-500 font-medium text-lg">Browse through our curated collection of bachelor-friendly accommodations</p>
           </div>
 
-          <div className='flex flex-col md:flex-row gap-[15px] items-stretch md:items-center flex-wrap'>
-            <div className='relative flex-1 min-w-full md:min-w-[200px] h-[50px] bg-[#f7f9fc] border border-[#ddd] rounded flex items-center px-2.5'>
-              <i className='fas fa-map-marker-alt text-[#aaa]'></i>
-              <input className="w-full h-full border-none outline-none bg-transparent text-[16px] pl-2.5" type="text" placeholder='Search Location' value={locationVal} onChange={e => setLocationVal(e.target.value)} />
+          {/* Filter Card */}
+          <section className="bg-white p-6 rounded-xl shadow-sm mb-12 border border-gray-200">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-1 h-6 bg-[#007bff] rounded-full"></div>
+              <h2 className="text-base font-medium text-black">Available Rooms ({filtered.length})</h2>
             </div>
-            <div className='relative flex-1 min-w-full md:min-w-[200px] h-[50px] bg-[#f7f9fc] border border-[#ddd] rounded flex items-center px-2.5 pr-[30px]'>
-              <select className="w-full h-full border-none outline-none bg-transparent text-[16px] pl-2.5 appearance-none" value={typeVal} onChange={e => setTypeVal(e.target.value)}>
-                <option value="">All Room Type</option>
-                <option value="single">Single Room</option>
-                <option value="shared">Shared Room</option>
-                <option value="1bhk">1 BHK</option>
-                <option value="2bhk">2 BHK</option>
-              </select>
-              <i className='fas fa-chevron-down text-[#aaa] absolute right-2.5 pointer-events-none'></i>
-            </div>
-            <div className='flex-[1.5] flex flex-col min-w-full md:min-w-[250px]'>
-              <input className="w-full h-2 bg-gradient-to-r from-[#2e59a7] to-[#e0e0e0] rounded-[5px] cursor-pointer mb-1 accent-[#2e59a7]" type="range" min='0' max='100000' step='1000' value={budget} onChange={e => setBudget(Number(e.target.value))} />
-              <span className='text-center text-[#666] text-[14px] mt-1.5'>Max Budget: ₹{budget.toLocaleString('en-IN')}</span>
-            </div>
-            <button className='bg-[#5cb85c] text-white border-none py-2.5 px-[25px] text-[18px] font-semibold rounded h-[50px] shrink-0 hover:bg-[#4cae4c] transition-colors w-full md:w-auto' onClick={applyFilters}>Apply Filters</button>
-          </div>
 
-          <div className='flex flex-wrap gap-[15px] mt-5 pt-[15px] border-t border-[#eee]'>
-            {Object.keys(amenities).map(key => (
-              <label key={key} className="flex items-center gap-1.5 text-[0.95rem] text-[#555] cursor-pointer">
-                <input type="checkbox" className="accent-[#5cb85c] w-4 h-4 cursor-pointer" checked={amenities[key]} onChange={() => toggleAmenity(key)} />
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </label>
+            <div className="flex flex-col lg:flex-row gap-4 items-center">
+              <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                <div className="relative flex items-center">
+                  <svg className="absolute left-4 text-black" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <input type="text" placeholder="Search location" value={locationVal} onChange={e => setLocationVal(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg outline-none focus:border-[#007bff] transition-all text-sm font-normal text-black placeholder:text-gray-400" />
+                </div>
+                <div>
+                  <select value={typeVal} onChange={e => setTypeVal(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg outline-none focus:border-[#007bff] transition-all text-sm font-normal text-black appearance-none bg-[url('https://cdn-icons-png.flaticon.com/512/271/271237.png')] bg-[length:10px] bg-[right_15px_center] bg-no-repeat">
+                    <option value="">All Room Types</option>
+                    <option value="single">Single Room</option>
+                    <option value="shared">Shared Room</option>
+                    <option value="1bhk">1 BHK</option>
+                    <option value="studio">2 BHK</option>
+                  </select>
+                </div>
+                <div className="pt-1">
+                  <input type="range" min="0" max="100000" step="1000" value={budget} onChange={e => setBudget(Number(e.target.value))}
+                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#007bff]" />
+                  <div className="text-[11px] font-medium text-[#007bff] uppercase text-center tracking-wide mt-1">Max Budget: ₹{budget.toLocaleString('en-IN')}</div>
+                </div>
+              </div>
+              <button onClick={applyFilters} className="w-full lg:w-auto bg-[#007bff] text-white px-8 py-2.5 rounded-lg font-medium text-sm hover:bg-[#045aaf] transition-all shadow-sm active:scale-95 whitespace-nowrap">
+                Apply Filters
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-3 mt-6 pt-6 border-t border-gray-100">
+              {Object.keys(amenities).map(key => (
+                <label key={key} className="flex items-center gap-2 text-sm font-normal text-black cursor-pointer hover:text-[#007bff] transition-colors">
+                  <input type="checkbox" checked={amenities[key]} onChange={() => toggleAmenity(key)}
+                    className="peer appearance-none w-4 h-4 border border-gray-300 rounded checked:bg-[#007bff] checked:border-[#007bff] transition-all" />
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </label>
+              ))}
+            </div>
+          </section>
+
+          {/* Rooms Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {loading && <p className="col-span-full text-center py-20 text-gray-400 font-bold animate-pulse">Searching for rooms...</p>}
+            {error && <p className="col-span-full text-center py-20 text-red-500 font-bold">{error}</p>}
+            {!loading && !error && filtered.length === 0 && (
+              <p className="col-span-full text-center py-20 text-gray-400 font-bold italic">No rooms match your criteria.</p>
+            )}
+            {!loading && filtered.map(room => (
+              <RoomCard key={room.id} room={room} navigate={navigate} />
             ))}
           </div>
-        </section>
-
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-[30px] py-5 w-full text-left'>
-          {loading && <p className="text-center w-full col-span-full">Loading Rooms...</p>}
-          {error && <p className="text-center w-full text-red-500 col-span-full">{error}</p>}
-          {!loading && !error && filtered.length === 0 && (
-            <p className="text-center w-full col-span-full text-lg text-[#666]">No Rooms match your criteria.</p>
-          )}
-          {!loading && filtered.map(room => <RoomCard key={room.id} room={room} navigate={navigate} />)}
         </div>
-      </div>
-    </main>
-    <Footer />
-  </div>
-);
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
 const RoomCard = ({ room, navigate }) => {
   const images = parseImages(room.image_url);
-  const imgSrc = images.length > 0 ? getImageUrl(images[0]) : 'https://placehold.co/340x200?text=No+Image';
+  const imgSrc = images.length > 0 ? getImageUrl(images[0]) : 'https://placehold.co/400x250?text=No+Image';
 
   return (
-    <div className='bg-white rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 flex flex-col border border-[#eee] hover:scale-[1.03] hover:shadow-[0_15px_30px_rgba(0,0,0,0.1)] relative group'>
-      <div className='bg-[#d1d5db] h-[180px] overflow-hidden relative'>
-        <img src={imgSrc} alt={room.title} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' loading='lazy'
-          onError={e => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400?text=Image+Not+Found'; }} />
-        <div className="absolute top-3 right-3 bg-[#4caf50] text-white text-xs font-bold px-2 py-1 rounded shadow">
-          ₹{room.rent}/mo
+    <div className="bg-white rounded-[25px] shadow-sm border border-gray-200 overflow-hidden flex flex-col group hover:shadow-xl transition-all duration-500 animate-slideUp">
+      <div className="h-52 overflow-hidden relative">
+        <img src={imgSrc} alt={room.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+      </div>
+      <div className="p-8 flex-grow">
+        <h3 className="text-xl font-medium text-black mb-6 h-14 line-clamp-2 leading-tight">{room.title}</h3>
+        
+        <div className="space-y-3.5 mb-8">
+          <div className="flex items-center gap-3 text-black font-normal text-sm">
+            <svg className="text-black" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>{room.room_type}</span>
+          </div>
+          <div className="flex items-center gap-3 text-black font-normal text-sm">
+            <svg className="text-black" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <span className="text-[#007bff] font-semibold">₹{room.rent}/mo</span>
+            <span className="text-gray-500 text-xs ml-1 font-medium">Dep: ₹{room.deposit}</span>
+          </div>
+          <div className="flex items-center gap-3 text-black font-normal text-sm">
+            <svg className="text-black" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {room.location}
+          </div>
+          <div className="flex items-center gap-3 text-black font-normal text-sm">
+            <svg className="text-black" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Sharing ({room.max_persons} Max)
+          </div>
+          <div className="flex items-center gap-3 text-black font-normal text-sm">
+            <svg className="text-black" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Preferred: {room.gender || 'Any'}
+          </div>
         </div>
-      </div>
-      <div className='p-5 flex-grow flex flex-col gap-2.5'>
-        <h3 className='text-[20px] text-[#1a1a1a] mb-1 font-bold line-clamp-2 leading-tight'>{room.title}</h3>
-        <p className="text-[#666] text-[0.95rem] flex items-center gap-2"><i className='fas fa-home w-4 text-center text-[#2e59a7]'></i><strong className="text-[#333]">{room.room_type}</strong></p>
-        <p className="text-[#666] text-[0.95rem] flex items-center gap-2"><i className='fas fa-tag w-4 text-center text-[#2e59a7]'></i><span className="text-[#999] text-[0.8rem] ml-1">Dep: ₹{room.deposit}</span></p>
-        <p className="text-[#666] text-[0.95rem] flex items-center gap-2"><i className='fas fa-map-marker-alt w-4 text-center text-[#2e59a7]'></i>{room.location}</p>
-        <p className="text-[#666] text-[0.95rem] flex items-center gap-2"><i className='fas fa-users w-4 text-center text-[#2e59a7]'></i>{room.max_persons > 1 ? 'Sharing' : 'Single'} ({room.max_persons} Max)</p>
-        <p className="text-[#666] text-[0.95rem] flex items-center gap-2"><i className='fas fa-venus-mars w-4 text-center text-[#2e59a7]'></i>Preferred: {room.gender || 'Any'}</p>
-      </div>
-      <div className='px-5 pb-5 flex gap-3 mt-auto'>
-        <button className='flex-1 h-[44px] bg-[#007bff] text-white border-none rounded-lg font-bold transition-all duration-300 hover:bg-[#045aaf] hover:-translate-y-0.5' onClick={() => navigate(`/room/${room.id}`)}>View Details</button>
+
+        <button onClick={() => navigate(`/room/${room.id}`)} className="w-full py-4 bg-[#007bff] text-white rounded-xl font-medium text-lg hover:bg-[#045aaf] transition-all shadow-lg shadow-blue-100 active:scale-95 mb-4">
+          View Details
+        </button>
+        <div className="text-center italic text-gray-500 text-xs font-medium">Posted recently</div>
       </div>
     </div>
   );
