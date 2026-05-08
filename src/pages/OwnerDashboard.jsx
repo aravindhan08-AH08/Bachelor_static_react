@@ -12,12 +12,6 @@ const OwnerDashboard = () => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (!isLoggedIn) { navigate('/login'); return; }
-        if (userRole !== 'Owner') { navigate('/bachelor-dashboard'); return; }
-        fetchData();
-    }, []);
-
     const fetchData = async () => {
         try {
             const res = await fetch(`${API_CONFIG.OWNER_DASHBOARD}?owner_email=${userData.email}`);
@@ -29,6 +23,12 @@ const OwnerDashboard = () => {
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     };
+
+    useEffect(() => {
+        if (!isLoggedIn) { navigate('/login'); return; }
+        if (userRole !== 'Owner') { navigate('/bachelor-dashboard'); return; }
+        fetchData();
+    }, []);
 
     const handleBookingAction = async (bookingId, action) => {
         const actionPath = action === 'Approved' ? 'approve-booking' : 'reject-booking';
