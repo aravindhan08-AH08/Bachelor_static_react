@@ -64,7 +64,7 @@ function Home() {
                             <input
                                 type="range"
                                 min='2000'
-                                max='50000'
+                                max='100000'
                                 step='1000'
                                 value={price}
                                 className='w-full cursor-pointer accent-[#007bff]'

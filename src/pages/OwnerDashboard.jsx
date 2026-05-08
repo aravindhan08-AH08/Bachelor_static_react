@@ -62,7 +62,7 @@ const OwnerDashboard = () => {
         <div className="flex flex-col min-h-screen bg-[#f4f7fa]">
             <Navbar />
             <main className="flex-grow max-w-[1200px] mx-auto w-full px-5 py-10 animate-fadeIn">
-                
+
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
                     <div>
@@ -72,7 +72,7 @@ const OwnerDashboard = () => {
                         <p className="text-gray-500 font-medium">Manage your listings and booking requests here.</p>
                     </div>
                     <Link to="/post-room" className="mt-4 md:mt-0 bg-[#5cb85c] text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-[#4cae4c] transition-all shadow-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></svg>
                         Post New Room
                     </Link>
                 </div>
@@ -81,7 +81,7 @@ const OwnerDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     <div className="bg-white p-8 rounded-2xl shadow-sm flex items-center gap-6 border border-gray-50">
                         <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-[#007bff]">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                         </div>
                         <div>
                             <h3 className="text-4xl font-black text-gray-800 leading-none mb-1">{totalRooms}</h3>
@@ -90,7 +90,7 @@ const OwnerDashboard = () => {
                     </div>
                     <div className="bg-white p-8 rounded-2xl shadow-sm flex items-center gap-6 border border-gray-50">
                         <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-[#28a745]">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
                         </div>
                         <div>
                             <h3 className="text-4xl font-black text-gray-800 leading-none mb-1">{activeListings}</h3>
@@ -99,7 +99,7 @@ const OwnerDashboard = () => {
                     </div>
                     <div className="bg-white p-8 rounded-2xl shadow-sm flex items-center gap-6 border border-gray-50">
                         <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-[#fd7e14]">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                         </div>
                         <div>
                             <h3 className="text-4xl font-black text-gray-800 leading-none mb-1">{totalBookings}</h3>
@@ -169,9 +169,8 @@ const OwnerDashboard = () => {
                                         <td className="px-8 py-6 font-black text-gray-800">{b.room_title || `Room ID: ${b.room_id}`}</td>
                                         <td className="px-8 py-6 font-bold text-gray-600">{b.user_name || 'Example'}</td>
                                         <td className="px-8 py-6 text-center">
-                                            <span className={`px-4 py-1.5 rounded-lg text-xs font-black shadow-sm ${
-                                                b.status === 'Approved' ? 'bg-[#d4edda] text-[#155724]' : 'bg-[#fff3cd] text-[#856404]'
-                                            }`}>
+                                            <span className={`px-4 py-1.5 rounded-lg text-xs font-black shadow-sm ${b.status === 'Approved' ? 'bg-[#d4edda] text-[#155724]' : 'bg-[#fff3cd] text-[#856404]'
+                                                }`}>
                                                 {b.status}
                                             </span>
                                         </td>
