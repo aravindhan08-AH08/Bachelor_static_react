@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://bachelor-life.vercel.app";
 
 export const API_CONFIG = {
     BASE_URL: BASE_URL,
@@ -14,8 +14,19 @@ export const API_CONFIG = {
 
 export const getImageUrl = (url) => {
     if (!url) return 'https://placehold.co/600x400?text=No+Image';
-    if (url.startsWith('http')) return url;
-    const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+    
+    // Extremely robust check for Base64 and absolute URLs
+    const trimmed = url.trim();
+    if (
+        trimmed.toLowerCase().startsWith('http') || 
+        trimmed.toLowerCase().startsWith('data:') || 
+        trimmed.includes('base64,') ||
+        trimmed.length > 1000 // Base64 strings are usually very long
+    ) {
+        return trimmed;
+    }
+
+    const cleanUrl = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
     return `${BASE_URL}${cleanUrl}`;
 };
 
